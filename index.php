@@ -92,7 +92,7 @@ ini_set('max_execution_time', 300);
 				$full_params = array("file"=>$web_path);
 				$thumb_params = $full_params;
 				$thumb_params['type'] = "thumb";
-				echo "<a class='image-popup-no-margins 'title='".str_replace(".".$ext, "", basename($file))."' href='get_image.php?p=".base64_encode(json_encode($full_params))."'><img src='get_image.php?p=".base64_encode(json_encode($thumb_params))."'/></a>\n";
+				echo "<a class='image-popup-no-margins 'title='".str_replace(".".$ext, "", str_replace(array("`", "'"), ":", basename($file)))."' href='get_image.php?p=".base64_encode(json_encode($full_params))."'><img src='get_image.php?p=".base64_encode(json_encode($thumb_params))."'/></a>\n";
 			}
 		} else {
 			echo "There are no images here...".PHP_EOL;
