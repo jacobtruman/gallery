@@ -103,7 +103,7 @@ foreach($duplicates as $hash=>$files) {
 					$thumb_params = $full_params;
 					$thumb_params['type'] = "thumb";
 					$title = str_replace("." . $ext, "", str_replace(array("`", "'"), ":", basename($file)));
-					echo "<div style='float:left; font-size: 8px;'><a class='image-popup-no-margins 'title='{$title}' href='get_image.php?p=" . base64_encode(json_encode($full_params)) . "'><img src='get_image.php?p=" . base64_encode(json_encode($thumb_params)) . "'/></a><br />{$file}</div>".PHP_EOL;
+					echo "<div style='float:left;'><a class='image-popup-no-margins 'title='{$title}' href='get_image.php?p=" . base64_encode(json_encode($full_params)) . "'><img src='get_image.php?p=" . base64_encode(json_encode($thumb_params)) . "'/></a><br /><input style='width: 400px;' onclick='this.select()' type='text' value=\"".addslashes($file)."\" /></div>".PHP_EOL;
 				}
 				echo "<br style='clear:both' />".PHP_EOL;
 			}
