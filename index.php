@@ -61,33 +61,6 @@ ini_set('max_execution_time', 300);
 				}
 
 				$thumbnail = $thumb_dir."/".$file_name;
-				if(!file_exists($thumbnail)) {
-					list($width, $height) = getimagesize($file);
-
-					$new_height = 150;
-					$new_width = $width / ($height / $new_height);
-
-					if(in_array(strtolower($ext), array("jpg", "jpeg"))) {
-						$methods = array("imagecreatefrom"=>"imagecreatefromjpeg", "image"=>"imagejpeg");
-						$quality = 100;
-					} elseif(strtolower($ext) == "png") {
-						$methods = array("imagecreatefrom"=>"imagecreatefrompng", "image"=>"imagepng");
-						$quality = 9;
-					} elseif(strtolower($ext) == "gif") {
-						$methods = array("imagecreatefrom"=>"imagecreatefromgif", "image"=>"imagegif");
-						$quality = 100;
-					}
-
-					// Load the images
-					$thumb = imagecreatetruecolor($new_width, $new_height);
-					$source = $methods["imagecreatefrom"]($file);
-
-					// Resize the $thumb image.
-					imagecopyresized($thumb, $source, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-
-					// Save the new file to the location specified by $thumbnail
-					$methods["image"]($thumb, $thumbnail, $quality);
-				}
 
 				$full_params = array("file"=>$web_path);
 				$thumb_params = $full_params;
