@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+#error_reporting(E_ALL);
+#ini_set('display_errors', 1);
 
 $params = json_decode(base64_decode($_REQUEST['p']), true);
 if(isset($_REQUEST['v']) && $_REQUEST['v'] == 1) {
@@ -9,9 +9,8 @@ if(isset($_REQUEST['v']) && $_REQUEST['v'] == 1) {
 }
 
 $file = $params['file'];
-$type = $params['type'];
 $fileDir = '/mine/Pictures';
-if($type == "thumb") {
+if(isset($params['type']) && $params['type'] == "thumb") {
 	$filePath = $fileDir . $file;
 	$ext = pathinfo($filePath, PATHINFO_EXTENSION);
 	$fileDir .= "/thumbnails";
