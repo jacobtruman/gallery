@@ -35,7 +35,7 @@ if(isset($_REQUEST['dir'])) {
 $web_dir = isset($_REQUEST['dir']) ? $_REQUEST['dir'] : '';
 $dir = $base_dir."/".$web_dir;
 
-$imgCompare = new ImgCompare($dir, $img_exts, array("path"=>array($dir)), true);
+$imgCompare = new ImgCompare($dir, $img_exts, array("path"=>array($dir), "path_exclude"=>array("thumbnails")), true);
 $duplicates = $imgCompare->getDuplicates();
 
 $thumb_base = $base_dir."/thumbnails";
