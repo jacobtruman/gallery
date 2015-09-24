@@ -6,6 +6,12 @@ ini_set('max_execution_time', 300);
 
 require_once("ImgCompare.class.php");
 
+if((isset($_REQUEST['auto_delete']) && $_REQUEST['auto_delete']) && (isset($_REQUEST['confirm']) && $_REQUEST['confirm'] === "Yes")) {
+	$delete_confirm = true;
+} else {
+	$delete_confirm = false;
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -21,10 +27,47 @@ require_once("ImgCompare.class.php");
 		<script src="js/jquery.js"></script>
 		<script src="js/jquery.magnific-popup.js?v=0.9.9"></script>
 		<script src="js/jquery.lazyload.js" type="text/javascript"></script>
+		
+		<script>
+			function deleteImage(id, base64file) {
+				$.post("delete.php",{
+					base64file: base64file
+				},
+				function(data, status){
+					dataobj = JSON.parse(data);
+					if(status == "success" && dataobj.status) {
+						//document.getElementById("img_"+id).className = 'disableImage';
+						//document.getElementById("button_"+id).disabled = true;
+						document.getElementById("button_"+id).style.visibility = "hidden";
+
+						document.getElementById("div_"+id).style.opacity = 0.5;
+					} else {
+						alert("Data: "+data+"\nStatus: "+status);
+					}
+				});
+			}
+		</script>
+		<style>
+			.disableImage {
+				-webkit-filter: grayscale(100%);
+				   -moz-filter: grayscale(100%);
+					 -o-filter: grayscale(100%);
+					-ms-filter: grayscale(100%);
+						filter: grayscale(100%);
+			}
+			
+			.enableImage {
+				-webkit-filter: grayscale(0%);
+				   -moz-filter: grayscale(0%);
+					 -o-filter: grayscale(0%);
+					-ms-filter: grayscale(0%);
+						filter: grayscale(0%); 
+			}
+		</style>
 	</head>
 
 <?php
-$img_exts = array('jpg', 'jpeg', 'png', 'JPG', 'gif');
+$img_exts = array('jpg', 'jpeg', 'png', 'gif');
 $base_dir = "/mine/Pictures";
 $theDir = $base_dir;
 
@@ -45,6 +88,8 @@ if(!file_exists($thumb_dir)) {
 }
 
 //$files = glob($theDir."/*");
+echo count($duplicates)." distinct images found with duplicates<br />".PHP_EOL;
+echo array_sum(array_map("count", $duplicates))." total images found with duplicates<br />".PHP_EOL;
 foreach($duplicates as $hash=>$files) {
 	foreach ($files as $file) {
 		$ext = pathinfo($file, PATHINFO_EXTENSION);
@@ -52,7 +97,7 @@ foreach($duplicates as $hash=>$files) {
 			$dir = str_replace($theDir . "/", "", $file);
 			$dirParam = isset($_REQUEST['dir']) ? $_REQUEST['dir'] . "/" . $dir : $dir;
 			echo "<a href='{$_SERVER['PHP_SELF']}?dir={$dirParam}'>{$dir}</a><br />".PHP_EOL;
-		} elseif (in_array($ext, $img_exts)) {
+		} elseif (in_array(strtolower($ext), $img_exts)) {
 			$imgs[$hash][] = $file;
 		}
 	}
@@ -60,10 +105,20 @@ foreach($duplicates as $hash=>$files) {
 ?>
 	<div class="popup-gallery">
 		<?php
+		$i = 0;
 		if(isset($imgs) && count($imgs)) {
 			foreach($imgs as $hash=>$files) {
 				foreach ($files as $file) {
+					$i++;
 					$ext = pathinfo($file, PATHINFO_EXTENSION);
+					$file_dir = pathinfo($file, PATHINFO_DIRNAME);
+					if(strpos($file_dir, $theDir) !== 0) {
+						$delete = true;
+						$button_style = "border: 1px solid #FF0000; color: #FF0000;";
+					} else {
+						$delete = false;
+						$button_style = "border: 1px solid #858585; color: #858585;";
+					}
 
 					$file_parts = explode("/", $file);
 					$file_name = end($file_parts);
@@ -76,7 +131,16 @@ foreach($duplicates as $hash=>$files) {
 					$thumb_params = $full_params;
 					$thumb_params['type'] = "thumb";
 					$title = str_replace("." . $ext, "", str_replace(array("`", "'"), ":", basename($file)));
-					echo "<div style='float:left;'><a class='image-popup-no-margins 'title='{$title}' href='get_image.php?p=" . base64_encode(json_encode($full_params)) . "'><img src='get_image.php?p=" . base64_encode(json_encode($thumb_params)) . "'/></a><br /><input style='width: 400px;' onclick='this.select()' type='text' value=\"".addslashes($file)."\" /></div>".PHP_EOL;
+					echo "<div style='float:left;' id='div_{$i}'>
+	<a class='image-popup-no-margins 'title='{$title}' href='get_image.php?p=" . base64_encode(json_encode($full_params)) . "'>
+		<img id='img_{$i}' src='get_image.php?p=" . base64_encode(json_encode($thumb_params)) . "' /></a>
+	<br />
+	<input style='width: 400px;' onclick='this.select()' type='text' value=\"".addslashes($file)."\" />
+	<button id='button_{$i}' style='{$button_style}' type='button' onclick='deleteImage(\"{$i}\", \"".base64_encode($file)."\")'>Delete</button>
+</div>".PHP_EOL;
+					if($delete && $delete_confirm) {
+						echo "<script>deleteImage(\"{$i}\", \"".base64_encode($file)."\")</script>".PHP_EOL;
+					}
 				}
 				echo "<br style='clear:both' />".PHP_EOL;
 			}
