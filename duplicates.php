@@ -12,6 +12,12 @@ if((isset($_REQUEST['auto_delete']) && $_REQUEST['auto_delete']) && (isset($_REQ
 	$delete_confirm = false;
 }
 
+if(isset($_REQUEST['flip'])) {
+	$flip = true;
+} else {
+	$flip = false;
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -112,7 +118,7 @@ foreach($duplicates as $hash=>$files) {
 					$i++;
 					$ext = pathinfo($file, PATHINFO_EXTENSION);
 					$file_dir = pathinfo($file, PATHINFO_DIRNAME);
-					if(strpos($file_dir, $theDir) !== 0) {
+					if((strpos($file, $theDir) !== 0 && !$flip) || (strpos($file, $theDir) === 0 && $flip)) {
 						$delete = true;
 						$button_style = "border: 1px solid #FF0000; color: #FF0000;";
 					} else {
